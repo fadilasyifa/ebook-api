@@ -49,7 +49,7 @@ class AuthController extends Controller
         $user = User::where('email', $fields['email'])->first();
 
         //Check password
-        if (!$user || !Hash::check($fields['password'], $user-password))
+        if (!$user || !Hash::check($fields['password'], $user->password))
         return response([
             'massage' => 'unathorized'
         ], 401);

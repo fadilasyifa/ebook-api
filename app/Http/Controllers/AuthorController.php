@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Author;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class AuthorController extends Controller
 {
@@ -11,9 +12,15 @@ class AuthorController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function index()
     {
-        //
+        $author = Author::all();
+
+        return response()->json([
+            "message"=>"load data success",
+            "data"=> $author
+        ],200);
     }
 
     /**
@@ -34,7 +41,32 @@ class AuthorController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $message = [
+            "nama" => "Masukan nama",
+            "email" => "Masukan email",
+            "gender" => "Masukan gender",
+            "no_hp" => "Masukan Nomor Hp",
+            "tanggal_lahir" => "Masukan Tanggal Lahir",
+            "tempat_lahir" => "Masukan Tempat lahir"
+        ];
+        $validasi = Validator::make($request->all(),[
+            "nama" => "required",
+            "email" => "required",
+            "gender" => "required",
+            "no_hp" => "required",
+            "tanggal_lahir" => "required",
+            "tempat_lahir" => "required"
+        ], $message);
+        if ($validasi ->fails()) {
+            return $validasi -> errors();
+        }
+        $authors = Author::create($validasi->validate());
+        $authors->save();
+
+        return response()->json([
+            "message"=>"data success",
+            "data"=> $authors
+        ],201);
     }
 
     /**
@@ -45,7 +77,12 @@ class AuthorController extends Controller
      */
     public function show($id)
     {
-        //
+        $authorid = Author::find($id);
+        if($authorid){
+            return $authorid;
+        }else{
+            return ["message" => "Data tidak ditemukan"];
+        }
     }
 
     /**
@@ -68,7 +105,11 @@ class AuthorController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $auhtorup = Author::findOrFail($id);
+        $auhtorup->update($request->all());
+        $auhtorup->save();
+
+        return $auhtorup;
     }
 
     /**
@@ -79,6 +120,12 @@ class AuthorController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $delauthor = Author::find($id);
+        if($delauthor){
+            $delauthor->delete();
+            return ["message" => "Delete Berhasil dihapus"];
+        }else{
+            return ["message" => "Delete tidak ditemukan"];
+        }
     }
 }
